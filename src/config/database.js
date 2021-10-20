@@ -2,7 +2,7 @@ module.exports = {
   host: "localhost",
   username: "postgres",
   password: "docker",
-  database: "db",
+  database: "postgres",
   dialect: "postgres",
   operatorsAliases: false,
   logging: false,
