@@ -1,8 +1,8 @@
 module.exports = {
   host: "localhost",
-  username: "docker",
+  username: "postgres",
   password: "docker",
-  database: "forca",
+  database: "db",
   dialect: "postgres",
   operatorsAliases: false,
   logging: false,
