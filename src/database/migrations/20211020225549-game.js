@@ -21,7 +21,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      attempts: {
+      wrong_attempts: {
         type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: 0,

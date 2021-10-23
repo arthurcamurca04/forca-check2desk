@@ -6,9 +6,9 @@ async function update_partial_word(id, partial_word, Game) {
   await linha.save();
 }
 
-async function update_attempts(id, attempts, Game) {
+async function update_attempts(id, wrong_attempts, Game) {
   let linha = await Game.findByPk(id);
-  linha.attempts = attempts;
+  linha.wrong_attempts = wrong_attempts;
   await linha.save();
 }
 
@@ -34,7 +34,7 @@ module.exports = {
     const { id, letter } = req.body;
     const game = await Game.findByPk(id);
     if (game) {
-      let { word, partial_word, attempts } = game;
+      let { word, partial_word, wrong_attempts } = game;
       if (!partial_word) {
         partial_word = [];
         Array.from(word).forEach((item) => {
@@ -57,12 +57,12 @@ module.exports = {
         }
       });
 
-      if (noMatchesFound) attempts++;
+      if (noMatchesFound) wrong_attempts++;
       partial_word = partial_word.join("");
 
       update_partial_word(id, partial_word, Game);
 
-      update_attempts(id, attempts, Game);
+      update_attempts(id, wrong_attempts, Game);
 
       if (arrayOfMatchedLetters.join("") == word) {
         update_partial_word(id, null, Game);
@@ -71,19 +71,24 @@ module.exports = {
         update_attempts(id, 0, Game);
       }
 
-      if (attempts >= 7) {
+      if (wrong_attempts >= 7) {
         update_partial_word(id, null, Game);
         update_attempts(id, 0, Game);
       }
 
       if (!(arrayOfMatchedLetters.length == 0)) {
+        let message;
+        if (isGameOver) {
+          message = "Ganhou";
+        } else if (wrong_attempts >= 7) {
+          message = "Perdeu";
+        } else if (noMatchesFound) {
+          message = "Letra não encontrada";
+        } else {
+        }
         return res.status(200).json({
           matchedLetters: arrayOfMatchedLetters,
-          message: isGameOver
-            ? "Congrats"
-            : attempts >= 7
-            ? "Perdeu"
-            : "Keep Trying",
+          message,
         });
       }
 
