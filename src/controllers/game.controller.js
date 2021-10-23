@@ -24,9 +24,11 @@ module.exports = {
     if (game) {
       const { word } = game;
       const indexesOfLetter = [];
-      Array.from(word).forEach((wordLetter, index) => {
+      Array.from(word).map((wordLetter, index) => {
         if (letter.toLowerCase() == wordLetter.toLowerCase()) {
-          indexesOfLetter.push(index);
+          indexesOfLetter.push(letter);
+        } else {
+          indexesOfLetter.push(null);
         }
       });
       if (!(indexesOfLetter.length == 0)) {
