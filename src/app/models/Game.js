@@ -3,6 +3,7 @@ module.exports = (sequelize, DataTypes) => {
     theme: DataTypes.STRING,
     word: DataTypes.STRING,
     partial_word: DataTypes.STRING,
+    attempts: DataTypes.INTEGER,
   });
   return Game;
 };
