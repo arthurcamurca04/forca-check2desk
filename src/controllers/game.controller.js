@@ -19,20 +19,49 @@ module.exports = {
   },
 
   checkLetter: async (req, res) => {
+    let isGameOver = false;
     const { id, letter } = req.body;
     const game = await Game.findByPk(id);
     if (game) {
-      const { word } = game;
-      const indexesOfLetter = [];
-      Array.from(word).map((wordLetter, index) => {
+      let { word, partial_word } = game;
+
+      if (!partial_word) {
+        partial_word = [];
+        Array.from(word).forEach((item) => {
+          partial_word.push("-");
+        });
+      } else {
+        partial_word = Array.from(partial_word);
+      }
+      console.log(partial_word);
+      const arrayOfMatchedLetters = [];
+      Array.from(word).map(async (wordLetter, index) => {
         if (letter.toLowerCase() == wordLetter.toLowerCase()) {
-          indexesOfLetter.push(letter);
+          arrayOfMatchedLetters.push(letter);
+          partial_word[index] = letter;
+
+          partial_word = partial_word.join("");
+
+          const linha = await Game.findByPk(id);
+          linha.partial_word = partial_word;
+          await linha.save();
+        } else if (partial_word[index] == "-") {
+          arrayOfMatchedLetters.push(null);
         } else {
-          indexesOfLetter.push(null);
+          arrayOfMatchedLetters.push(partial_word[index]);
         }
       });
-      if (!(indexesOfLetter.length == 0)) {
-        return res.status(200).json(indexesOfLetter);
+      if (arrayOfMatchedLetters.join("") == word) {
+        const linha = await Game.findByPk(id);
+        linha.partial_word = null;
+        await linha.save();
+        isGameOver = true;
+      }
+      if (!(arrayOfMatchedLetters.length == 0)) {
+        return res.status(200).json({
+          matchedLetters: arrayOfMatchedLetters,
+          finished: isGameOver ? "Congrats" : "Keep Trying",
+        });
       }
       return res.status(404).json({ message: "Letter not found" });
     } else {
