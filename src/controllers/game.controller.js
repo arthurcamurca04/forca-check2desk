@@ -1,5 +1,16 @@
 const { Sequelize } = require("sequelize");
 const { Game } = require("../app/models");
+const axios = require("axios");
+const { Player } = require("../app/models");
+
+const authAxios = axios.create({
+  baseURL: "https://api.chat2desk.com/v1/",
+  headers: {
+    Authorization: "68f16f805396b39fe1b88914fa97db",
+    "Content-Type": "application/json",
+  },
+});
+
 async function update_partial_word(id, partial_word, Game) {
   let linha = await Game.findByPk(id);
   linha.partial_word = partial_word;
@@ -19,19 +30,36 @@ module.exports = {
     return res.status(201).json(response);
   },
 
-  startGame: async (req, res) => {
-    const response = await Game.findOne({
+  startGame: async (request, response) => {
+    const findGame = await Game.findOne({
       order: Sequelize.literal("random()"),
     });
+    const quantityLetters = findGame.word.length;
 
-    const { id, theme, word } = response;
-    const quantityLetters = word.length;
-    return res.status(200).json({ id, theme, quantityLetters });
+    try {
+      const result = await authAxios.post(
+        `clients?phone=${request.body.phone}&transport=widget&nickname=${request.body.name}`,
+        { phone: request.body.phone, name: request.body.name }
+      );
+      const { id, assigned_name, phone } = result.data.data;
+      await Player.create({ id, name: assigned_name, phone });
+      return response.status(201).json({
+        user_id: id,
+        assigned_name,
+        phone,
+        game_id: findGame.id,
+        theme: findGame.theme,
+        quantityLetters,
+      });
+    } catch (error) {
+      console.log("Este error: ", error);
+      return response.status(500);
+    }
   },
 
   checkLetter: async (req, res) => {
     let isGameOver = false;
-    const { id, letter } = req.body;
+    const { id, letter, user_id } = req.body;
     const game = await Game.findByPk(id);
     if (game) {
       let { word, partial_word, wrong_attempts } = game;
@@ -80,8 +108,16 @@ module.exports = {
         let message;
         if (isGameOver) {
           message = "Ganhou";
+          await authAxios.post(
+            `messages?client_id=${user_id}&text=${message}&transport=widget`,
+            { user_id, message }
+          );
         } else if (wrong_attempts >= 7) {
           message = "Perdeu";
+          await authAxios.post(
+            `messages?client_id=${user_id}&text=${message}&transport=widget`,
+            { user_id, message }
+          );
         } else if (noMatchesFound) {
           message = "Letra não encontrada";
         } else {
