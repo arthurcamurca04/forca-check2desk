@@ -42,7 +42,6 @@ module.exports = {
         { phone: request.body.phone, name: request.body.name }
       );
       const { id, assigned_name, phone } = result.data.data;
-      await Player.create({ id, name: assigned_name, phone });
       return response.status(201).json({
         user_id: id,
         assigned_name,
