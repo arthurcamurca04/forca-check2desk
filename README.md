@@ -16,6 +16,7 @@ API desafio jogo da forca - chat2desk.
 - [Jest v27](https://jestjs.io/pt-BR/)
 - [Supertest v6.1](https://www.npmjs.com/package/supertest)
 - [Sqlite v5](https://www.sqlite.org/index.html)
+- [Sequelize CLI v6.2](https://sequelize.org/)
 
 Caso se deseje instalar as dependências das bases de dados (PostgreSQL) via docker basta instalar as ferramentas de containerização e executar o docker-compose.
 
@@ -39,6 +40,18 @@ Crie um arquivo `.env` na raiz do repositório preenchendo os valores das variá
 Para a execução dos testes crie um arquivo `.env.test` na raiz do repositório preenchendo os valores das variáveis presentes no arquivo [.env.test.example](.env.test.example)
 
 Para finalizar a instalação, configure o banco de dados que será integrado ao projeto.
+
+Após configurar o bando de dados deve rodar o comando do sequelize-cli para executar as migrations:
+
+```
+npx sequelize db:migrate
+```
+
+Para desfazer as migrations, basta executar o comando:
+
+```
+npx sequelize db:migrate:undo:all
+```
 
 Finalmente, teste a instalação executando o projeto em modo de desenvolvimento.
 
