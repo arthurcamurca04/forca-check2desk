@@ -83,14 +83,12 @@ module.exports = {
       partial_word = partial_word.join("");
 
       updatePartialWord(id, partial_word, Game);
-
       updateAttempts(id, wrong_attempts, Game);
 
       if (arrayOfMatchedLetters.join("") == word) {
         updatePartialWord(id, null, Game);
-        isGameOver = true;
-
         updateAttempts(id, 0, Game);
+        isGameOver = true;
       }
 
       if (wrong_attempts >= 7) {
@@ -100,7 +98,7 @@ module.exports = {
 
       if (!(arrayOfMatchedLetters.length == 0)) {
         let message;
-        if (isGameOver == true) {
+        if (isGameOver) {
           message = "Ganhou";
           await authAxios.post(
             `messages?client_id=${user_id}&text=${message}&transport=widget`,
@@ -115,6 +113,7 @@ module.exports = {
         } else if (noMatchesFound) {
           message = "Letra não encontrada";
         } else {
+          message = "Continue jogando";
         }
         return res.status(200).json({
           matchedLetters: arrayOfMatchedLetters,
