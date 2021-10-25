@@ -55,7 +55,7 @@ module.exports = {
     let isGameOver = false;
     const { id, letter, user_id } = req.body;
     const game = await Game.findByPk(id);
-    if (game != null || game != undefined) {
+    if (game) {
       let { word, partial_word, wrong_attempts } = game;
       if (!partial_word) {
         partial_word = [];
@@ -100,7 +100,7 @@ module.exports = {
 
       if (!(arrayOfMatchedLetters.length == 0)) {
         let message;
-        if (isGameOver) {
+        if (isGameOver == true) {
           message = "Ganhou";
           await authAxios.post(
             `messages?client_id=${user_id}&text=${message}&transport=widget`,
@@ -115,7 +115,6 @@ module.exports = {
         } else if (noMatchesFound) {
           message = "Letra não encontrada";
         } else {
-          return res.status(400).json({ message: "Algo deu errado" });
         }
         return res.status(200).json({
           matchedLetters: arrayOfMatchedLetters,
